@@ -2,30 +2,39 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/viper"
 )
 
-// Config is global object that holds all application level variables.
-var Config appConfig
-
-type appConfig struct {
-	// Example Variable
-	ConfigVar string
+type Config struct {
+	URL string
 }
 
-// LoadConfig loads config from files
-func LoadConfig(configPaths ...string) error {
-	v := viper.New()
-	v.SetConfigName("example")
-	v.SetConfigType("yaml")
-	v.SetEnvPrefix("golang-starter")
-	v.AutomaticEnv()
-	for _, path := range configPaths {
-		v.AddConfigPath(path)
+func GetEnvVars() Config {
+	if _, err := os.Stat(".env"); err == nil {
+		// Initialize Viper from .env file
+		viper.SetConfigFile(".env") // Specify the name of your .env file
+
+		// Read the .env file
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Printf("Error reading .env file: %s\n", err)
+			os.Exit(1)
+		}
 	}
-	if err := v.ReadInConfig(); err != nil {
-		return fmt.Errorf("failed to read the configuration file: %s", err)
+
+	// Enable reading environment variables
+	viper.AutomaticEnv()
+
+	// get URL from Viper
+	url := viper.GetString("URL")
+	if url == "" {
+		fmt.Println("URL to parse must be provided")
+		os.Exit(1)
 	}
-	return v.Unmarshal(&Config)
+
+	var conf Config
+	viper.Unmarshal(&conf)
+
+	return conf
 }
