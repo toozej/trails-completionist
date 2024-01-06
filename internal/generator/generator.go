@@ -21,7 +21,7 @@ func organizeTrails(trails []types.Trail) (map[string][]types.Trail, error) {
 
 // Create an HTML file
 func createHTMLOutputFile(filename string) (*os.File, error) {
-	fp, err := os.Create(filename)
+	fp, err := os.Create(filename) // #nosec G304
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,6 @@ func createHTMLOutputFile(filename string) (*os.File, error) {
 }
 
 // Create and execute the template
-// TODO figure out how to reference and use template, likely from dinnerclub
 func executeHTMLTemplate(fp *os.File, tmpl *embed.FS, trailsByPark map[string][]types.Trail) error {
 	t := template.Must(template.ParseFS(tmpl, "*/*.html.tmpl"))
 	err := t.Execute(fp, trailsByPark)
