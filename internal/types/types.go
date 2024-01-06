@@ -4,7 +4,8 @@ package types
 type Trail struct {
 	Name           string
 	Park           string
-	TypeAndLength  string
+	Type           string
+	Length         string
 	URL            string
 	Completed      bool
 	CompletionDate string

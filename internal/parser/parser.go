@@ -1,74 +1,133 @@
 package parser
 
 import (
+	"bufio"
+	"bytes"
 	"log"
-	"net/http"
+	"os"
+	"regexp"
+	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/viper"
 	"github.com/toozej/trails-completionist/internal/types"
 )
 
-// Fetch the web page content
-func fetchHTMLContent(url string) (*http.Response, error) {
-	resp, err := http.Get(url)
+// Fetch the file contents
+func fetchFile(filename string) (*os.File, error) {
+	f, err := os.Open(filename) // #nosec G304
 	if err != nil {
 		log.Fatal(err)
 	}
 	if viper.GetBool("debug") {
-		log.Printf("Response object: %v\n", resp)
+		fileContents, _ := os.ReadFile(filename) // #nosec G304
+		bytesReader := bytes.NewReader(fileContents)
+		bufReader := bufio.NewReader(bytesReader)
+		lineOne, _, _ := bufReader.ReadLine()
+		log.Printf("first line of file contents:\n %s\n", string(lineOne))
 	}
-	return resp, err
+	return f, err
 }
 
-// Parse the HTML document
-func parseHTMLContent(resp *http.Response) (*goquery.Document, error) {
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if viper.GetBool("debug") {
-		log.Printf("goquery Document object: %v\n", doc)
-	}
-	defer resp.Body.Close()
-	return doc, err
-}
-
-// Extract trail information
-func extractTrailInfo(doc *goquery.Document) ([]types.Trail, error) {
+// Extract trail information from file contents
+func extractTrailInfo(file *os.File) ([]types.Trail, error) {
 	var trails []types.Trail
+	var currentTrail types.Trail
 
-	// TODO figure out why doc.Find() isn't getting anything
-	doc.Find("sc-dPWrhe digRqT").Each(func(i int, s *goquery.Selection) {
-		name := s.Find("sc-cjibBx cKMyqg").Text()
-		park := s.Find("sc-gYbzsP hksFOR").Text()
-		typeAndLength := s.Find("sc-cCjUiG gazdbj").Text()
-		url, _ := s.Find("sc-hhOBVt IBdfr").Attr("href")
+	// Read file in batches of 3 lines and parse trail information
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		line := scanner.Text()
+		line = strings.TrimSpace(line)
+		// Check if the line is not empty
+		if line != "" {
+			lines = append(lines, line)
 
-		trail := types.Trail{
-			Name:          name,
-			Park:          park,
-			TypeAndLength: typeAndLength,
-			URL:           url,
+			// Check if we have collected 3 lines (one trail object from raw input file)
+			if len(lines) == 3 {
+				// Parse the trail information
+				currentTrail = types.Trail{
+					Name:           parseTrailName(lines[0]),
+					Park:           parseTrailPark(lines[2]),
+					Type:           parseTrailType(lines[1]),
+					Length:         parseTrailLength(lines[1]),
+					URL:            "",
+					Completed:      false,
+					CompletionDate: "",
+				}
+				trails = append(trails, currentTrail)
+
+				// Reset the lines slice for the next batch
+				lines = nil
+			}
 		}
+	}
 
-		trails = append(trails, trail)
-	})
 	return trails, nil
 }
 
-func ParseTrailsFromHTML(url string) ([]types.Trail, error) {
-	resp, err := fetchHTMLContent(url)
+func parseTrailName(input string) string {
+	return strings.TrimSpace(input)
+}
+
+func parseTrailType(input string) string {
+	// Regular expression to parse trail type and length
+	re := regexp.MustCompile(`^(\S+)\s+(\d+(\.\d+)?)\s+miles$`)
+
+	// FindStringSubmatch returns a slice of strings containing the text of the leftmost match
+	match := re.FindStringSubmatch(input)
+
+	var trailType string
+	if len(match) == 4 {
+		trailType = match[1]
+	} else {
+		trailType = ""
+	}
+
+	return trailType
+}
+
+func parseTrailLength(input string) string {
+	// Regular expression to parse trail type and length
+	re := regexp.MustCompile(`^(\S+)\s+(\d+(\.\d+)?)\s+miles$`)
+
+	// FindStringSubmatch returns a slice of strings containing the text of the leftmost match
+	match := re.FindStringSubmatch(input)
+
+	var trailLength string
+	if len(match) == 4 {
+		trailLength = match[2]
+	} else {
+		trailLength = "0.0 miles"
+	}
+
+	return trailLength
+}
+
+func parseTrailPark(input string) string {
+	// Regular expression to parse trail park
+	re := regexp.MustCompile(`>\s*([^>]+)$`)
+
+	// FindStringSubmatch returns a slice of strings containing the text of the leftmost match
+	match := re.FindStringSubmatch(input)
+
+	var trailPark string
+	if len(match) == 2 {
+		trailPark = match[1]
+	} else {
+		trailPark = ""
+	}
+
+	return trailPark
+}
+
+func ParseTrailsFromFile(filename string) ([]types.Trail, error) {
+	f, err := fetchFile(filename)
 	if err != nil {
 		return []types.Trail{}, err
 	}
 
-	doc, err := parseHTMLContent(resp)
-	if err != nil {
-		return []types.Trail{}, err
-	}
-
-	trails, err := extractTrailInfo(doc)
+	trails, err := extractTrailInfo(f)
 	if err != nil {
 		return []types.Trail{}, err
 	}

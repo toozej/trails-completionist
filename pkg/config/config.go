@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	URL string
+	InputFilename string
 }
 
 func GetEnvVars() Config {
@@ -26,15 +26,18 @@ func GetEnvVars() Config {
 	// Enable reading environment variables
 	viper.AutomaticEnv()
 
-	// get URL from Viper
-	url := viper.GetString("URL")
-	if url == "" {
-		fmt.Println("URL to parse must be provided")
+	// get vars from Viper
+	inputFilename := viper.GetString("INPUT_FILENAME")
+	if inputFilename == "" {
+		fmt.Println("Input filename must be provided")
 		os.Exit(1)
 	}
 
 	var conf Config
-	viper.Unmarshal(&conf)
+	if err := viper.Unmarshal(&conf); err != nil {
+		fmt.Printf("Error unmarshalling Viper conf: %s\n", err)
+		os.Exit(1)
+	}
 
 	return conf
 }

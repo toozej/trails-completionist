@@ -13,7 +13,8 @@
 			<tr>
 				<th>Trail Name</th>
 				<th>Park Name</th>
-				<th>Type and Length</th>
+				<th>Type</th>
+				<th>Length</th>
 				<th>Trail URL</th>
 				<th>Completed</th>
 				<th>Completion Date</th>
@@ -22,7 +23,8 @@
 			<tr>
 				<td>{{$ .Name}}</td>
 				<td>{{$ .Park}}</td>
-				<td>{{$ .TypeAndLength}}</td>
+				<td>{{$ .Type}}</td>
+				<td>{{$ .Length}}</td>
 				<td><a href="{{$ .URL}}" target="_blank">Link</a></td>
 				<td><input type="checkbox" {{$if .Completed}}checked{{end}}></td>
 				<td>{{$ .CompletionDate}}</td>
