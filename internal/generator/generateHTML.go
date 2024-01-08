@@ -31,7 +31,7 @@ func createHTMLOutputFile(filename string) (*os.File, error) {
 
 // Create and execute the template
 func executeHTMLTemplate(fp *os.File, tmpl *embed.FS, trailsByPark map[string][]types.Trail) error {
-	t := template.Must(template.ParseFS(tmpl, "*/*.html.tmpl"))
+	t := template.Must(template.ParseFS(tmpl, "*.html.tmpl"))
 	err := t.Execute(fp, trailsByPark)
 	if err != nil {
 		return err

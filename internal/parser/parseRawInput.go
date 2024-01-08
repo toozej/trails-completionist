@@ -121,7 +121,7 @@ func parseTrailPark(input string) string {
 	return trailPark
 }
 
-func ParseTrailsFromFile(filename string) ([]types.Trail, error) {
+func ParseTrailsFromRawInputFile(filename string) ([]types.Trail, error) {
 	f, err := fetchFile(filename)
 	if err != nil {
 		return []types.Trail{}, err
