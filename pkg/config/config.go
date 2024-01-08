@@ -8,7 +8,9 @@ import (
 )
 
 type Config struct {
-	InputFilename string
+	InputFilename     string
+	ChecklistFilename string
+	HTMLFilename      string
 }
 
 func GetEnvVars() Config {
@@ -30,6 +32,16 @@ func GetEnvVars() Config {
 	inputFilename := viper.GetString("INPUT_FILENAME")
 	if inputFilename == "" {
 		fmt.Println("Input filename must be provided")
+		os.Exit(1)
+	}
+	checklistFilename := viper.GetString("CHECKLIST_FILENAME")
+	if checklistFilename == "" {
+		fmt.Println("Checklist filename must be provided")
+		os.Exit(1)
+	}
+	htmlFilename := viper.GetString("HTML_FILENAME")
+	if htmlFilename == "" {
+		fmt.Println("html filename must be provided")
 		os.Exit(1)
 	}
 
