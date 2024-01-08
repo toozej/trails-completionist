@@ -2,5 +2,5 @@ package generator
 
 import "embed"
 
-//go:embed *.html.tmpl
+//go:embed *.tmpl
 var Templates embed.FS

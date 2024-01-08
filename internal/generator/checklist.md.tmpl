@@ -1,0 +1,11 @@
+# PDX Trails Completionist
+
+{{range $park, $trails := .}}
+## {{$park}}
+{{range $trails}}
+- {{$trails.Name}}
+    - {{$trails.Type}}
+    - {{$trails.Length}}
+    {{if $trails.Completed}}- Completed {{$trails.CompletionDate}}{{end}}
+{{end}}
+{{end}}

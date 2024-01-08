@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -24,19 +23,39 @@ var rootCmd = &cobra.Command{
 	PersistentPreRun: rootCmdPreRun,
 	Run: func(cmd *cobra.Command, args []string) {
 		config.GetEnvVars()
+
+		// gather raw trails
 		inputFilename := viper.GetString("INPUT_FILENAME")
 		fmt.Printf("Parsing filename: %s\n", inputFilename)
-
-		trails, err := parser.ParseTrailsFromFile(inputFilename)
+		rawTrails, err := parser.ParseTrailsFromRawInputFile(inputFilename)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("Error parsing trails from raw input file: ", err)
+			os.Exit(1)
 		}
 		if viper.GetBool("debug") {
-			fmt.Printf("Parsed trails:\n %v\n", trails)
+			fmt.Printf("Parsed trails from raw input:\n %v\n", rawTrails)
 		}
 
-		if err = generator.GenerateHTMLOutput("./out/html/index.html", trails); err != nil {
-			fmt.Println("Error generating HTML output: ", err)
+		// generate checklist
+		checklistFilename := viper.GetString("CHECKLIST_FILENAME")
+		fmt.Printf("Parsing filename: %s\n", checklistFilename)
+		if err = generator.GenerateChecklist(checklistFilename, rawTrails); err != nil {
+			fmt.Println("Error generating checklist: ", err)
+			os.Exit(1)
+		}
+
+		// parse trails from checklist
+		trails, err := parser.ParseTrailsFromChecklist(checklistFilename)
+		if err != nil {
+			fmt.Println("Error parsing trails from checklist: ", err)
+			os.Exit(1)
+		}
+
+		// generate HTML table from checklist
+		htmlFilename := viper.GetString("HTML_FILENAME")
+		if err = generator.GenerateHTMLOutput("./out/html/"+htmlFilename, trails); err != nil {
+			fmt.Println("Error generating HTML output file: ", err)
+			os.Exit(1)
 		} else {
 			http.Handle("/", http.FileServer(http.Dir("./out/html")))
 			http.ListenAndServe(":3000", nil)
