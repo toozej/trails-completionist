@@ -1,4 +1,6 @@
 ---
+version: 2
+
 project_name: trails-completionist
 
 env:
@@ -15,7 +17,7 @@ before:
     - ./scripts/manpages.sh
 
 snapshot:
-  name_template: '{{ incpatch .Version }}-next'
+  version_template: '{{ incpatch .Version }}-next'
 
 builds:
   - env:
@@ -220,7 +222,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ['zip']
     files:
       - README.md
       - LICENSE
@@ -232,7 +234,7 @@ nfpms:
     id: packages
     homepage: https://github.com/toozej/trails-completionist
     description: |-
-      Golang starter template
+      tools for tracking completion of trails
     maintainer: toozej
     license: GPLv3
     vendor: trails-completionist

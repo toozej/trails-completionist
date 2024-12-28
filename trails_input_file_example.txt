@@ -215,7 +215,7 @@ Connector 0.2 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Forest Park
 
 Wildwood Trail - National Recreation Trail
-Recommended Route 29.4 miles
+Trail 29.4 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Hoyt Arboretum
 
 Firelane 13
@@ -451,7 +451,7 @@ Trail 0.1 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Kelley Point Park
 
 Table Rock Hike
-Recommended Route 7.3 miles
+Trail 7.3 miles
 Oregon > Portland Metro and Mt. Hood
 
 Saddle Trail
@@ -475,7 +475,7 @@ Trail 2.4 miles
 Oregon > Portland Metro and Mt. Hood
 
 Powell Butte Loop
-Recommended Route 3.3 miles
+Trail 3.3 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Powell Butte Nature Park
 
 Wildhorse Trail
@@ -591,7 +591,7 @@ Trail 0.4 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Cooper Mountain Nature Park
 
 Powell Butte Loop
-Recommended Route 3.3 miles
+Trail 3.3 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Powell Butte Nature Park
 
 Wildhorse Trail
@@ -695,7 +695,7 @@ Connector 0.1 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Tualatin River National Wildlife Refuge
 
 Tryon Creek Loop
-Recommended Route 3.4 miles
+Trail 3.4 miles
 Oregon > Portland Metro and Mt. Hood > Portland > Tryon Creek State Natural Area
 
 Cedar Trail
