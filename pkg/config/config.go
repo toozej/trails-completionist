@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	InputFilename     string
-	ChecklistFilename string
-	HTMLFilename      string
+	InputFile     string `mapstructure:"input_file"`
+	ChecklistFile string `mapstructure:"checklist_file"`
+	HTMLFile      string `mapstructure:"html_file"`
+	Serve         bool   `mapstructure:"serve"`
 }
 
 func GetEnvVars() Config {
@@ -28,23 +29,7 @@ func GetEnvVars() Config {
 	// Enable reading environment variables
 	viper.AutomaticEnv()
 
-	// get vars from Viper
-	inputFilename := viper.GetString("INPUT_FILENAME")
-	if inputFilename == "" {
-		fmt.Println("Input filename must be provided")
-		os.Exit(1)
-	}
-	checklistFilename := viper.GetString("CHECKLIST_FILENAME")
-	if checklistFilename == "" {
-		fmt.Println("Checklist filename must be provided")
-		os.Exit(1)
-	}
-	htmlFilename := viper.GetString("HTML_FILENAME")
-	if htmlFilename == "" {
-		fmt.Println("html filename must be provided")
-		os.Exit(1)
-	}
-
+	// Setup conf struct with items from environment variables
 	var conf Config
 	if err := viper.Unmarshal(&conf); err != nil {
 		fmt.Printf("Error unmarshalling Viper conf: %s\n", err)

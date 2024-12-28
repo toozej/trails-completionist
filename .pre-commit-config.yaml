@@ -4,7 +4,7 @@ minimum_pre_commit_version: "1.15"
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
         name: Check for valid YAML syntax in repo
@@ -68,13 +68,13 @@ repos:
 
   # run shellcheck on Bash scripts
   - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.9.0
+    rev: v0.10.0
     hooks:
       - id: shellcheck
 
   # lint Dockerfile
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.1-beta
+    rev: v2.13.1-beta
     hooks:
       - id: hadolint-docker
         args: ["--ignore", "DL3007"]
@@ -88,13 +88,13 @@ repos:
 
   # goreleaser config check
   - repo: https://github.com/trussworks/pre-commit-hooks
-    rev: v1.1.1
+    rev: v2.0.0
     hooks:
       - id: goreleaser-check
 
   # run semgrep on all known filetypes
   - repo: https://github.com/returntocorp/semgrep
-    rev: 'v1.60.1'
+    rev: 'v1.89.0'
     hooks:
       - id: semgrep
         # See https://semgrep.dev/explore to select a ruleset and copy its URL

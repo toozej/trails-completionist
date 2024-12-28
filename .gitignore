@@ -13,6 +13,7 @@ cosign.key
 *.so
 *.dylib
 out/
+tmp/
 
 # Test binary, built with `go test -c`
 *.test
@@ -28,3 +29,5 @@ completions/
 manpages/
 docs/
 dist/
+
+trails_checklist.md

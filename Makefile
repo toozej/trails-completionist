@@ -33,10 +33,10 @@ else
 	OPENER=open
 endif
 
-.PHONY: all vet test build verify run up down distroless-build distroless-run local local-dev local-vet local-test local-cover local-run local-release-test local-release local-sign local-verify local-release-verify install get-cosign-pub-key docker-login pre-commit-install pre-commit-run pre-commit pre-reqs update-golang-version docs docs-generate docs-serve clean help
+.PHONY: all vet test build verify run up down distroless-build distroless-run local local-dev local-vet local-test local-cover local-iterate local-kill local-run local-release-test local-release local-sign local-verify local-release-verify install get-cosign-pub-key docker-login pre-commit-install pre-commit-run pre-commit pre-reqs update-golang-version docs docs-generate docs-serve clean help
 
 all: vet pre-commit clean test build verify run ## Run default workflow via Docker
-local: local-update-deps local-vendor local-vet pre-commit clean local-test local-cover local-build local-sign local-verify local-run ## Run default workflow using locally installed Golang toolchain
+local: local-update-deps local-vendor local-vet pre-commit clean local-test local-cover local-build local-sign local-verify local-kill local-run ## Run default workflow using locally installed Golang toolchain
 local-dev: local-update-deps local-vendor local-vet pre-commit-run local-test local-build local-run ## Develop using locally installed Golang toolchain
 local-release-verify: local-release local-sign local-verify ## Release and verify using locally installed Golang toolchain
 pre-reqs: pre-commit-install ## Install pre-commit hooks and necessary binaries
@@ -45,9 +45,7 @@ vet: ## Run `go vet` in Docker
 	docker build --target vet -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest . 
 
 test: ## Run `go test` in Docker
-	docker build --target test -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest . 
-	@echo -e "\nStatements missing coverage"
-	@grep -v -e " 1$$" c.out
+	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest .
 
 build: ## Build Docker image, including running tests
 	docker build -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest .
@@ -96,7 +94,16 @@ local-build: ## Run `go build` using locally installed golang toolchain
 	CGO_ENABLED=0 go build -o $(CURDIR)/out/ -ldflags="$(LDFLAGS)"
 
 local-run: ## Run locally built binary
-	$(CURDIR)/out/trails-completionist --debug
+	$(CURDIR)/out/trails-completionist --debug --inputFile trails_input_file_example.txt --checklistFile trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html
+
+local-run-generate: ## Run locally built binary with existing trails checklist files
+	$(CURDIR)/out/trails-completionist --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html
+
+local-kill: ## Kill any currently running locally built binary
+	-pkill -f '$(CURDIR)/out/trails-completionist'
+
+local-iterate: ## Run `make local-build local-run` via `air` any time a .go or .tmpl file changes
+	air -c $(CURDIR)/.air.toml
 
 local-release-test: ## Build assets and test goreleaser config using locally installed golang toolchain and goreleaser
 	goreleaser check
@@ -148,13 +155,13 @@ pre-commit-install: ## Install pre-commit hooks and necessary binaries
 	# go-critic
 	go install github.com/go-critic/go-critic/cmd/gocritic@latest
 	# structslop
-	go install github.com/orijtech/structslop/cmd/structslop@latest
+	# go install github.com/orijtech/structslop/cmd/structslop@latest
 	# shellcheck
 	command -v shellcheck || sudo dnf install -y ShellCheck || sudo apt install -y shellcheck
 	# checkmake
 	go install github.com/mrtazz/checkmake/cmd/checkmake@latest
 	# goreleaser
-	go install github.com/goreleaser/goreleaser@latest
+	go install github.com/goreleaser/goreleaser/v2@latest
 	# syft
 	command -v syft || curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 	# cosign
@@ -163,6 +170,8 @@ pre-commit-install: ## Install pre-commit hooks and necessary binaries
 	go install github.com/google/go-licenses@latest
 	# go vuln check
 	go install golang.org/x/vuln/cmd/govulncheck@latest
+	# air
+	go install github.com/air-verse/air@latest
 	# install and update pre-commits
 	pre-commit install
 	pre-commit autoupdate
@@ -192,6 +201,8 @@ docs-serve: ## Serve documentation on http://localhost:9000
 
 clean: ## Remove any locally compiled binaries
 	rm -f $(CURDIR)/out/trails-completionist
+	rm -f $(CURDIR)/trails_checklist.md
+	rm -f $(CURDIR)/out/html/*
 
 help: ## Display help text
 	@grep -E '^[a-zA-Z_-]+ ?:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

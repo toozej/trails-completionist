@@ -55,7 +55,17 @@ func extractTrailInfo(file *os.File) ([]types.Trail, error) {
 					Completed:      false,
 					CompletionDate: "",
 				}
-				trails = append(trails, currentTrail)
+				// Check if the current trail is already in the list
+				exists := false
+				for _, trail := range trails {
+					if trail.Name == currentTrail.Name && trail.Park == currentTrail.Park {
+						exists = true
+						break
+					}
+				}
+				if !exists {
+					trails = append(trails, currentTrail)
+				}
 
 				// Reset the lines slice for the next batch
 				lines = nil
