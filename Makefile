@@ -57,7 +57,7 @@ verify: get-cosign-pub-key ## Verify Docker image with Cosign
 	cosign verify --key $(CURDIR)/trails-completionist.pub toozej/trails-completionist:latest
 
 run: ## Run built Docker image
-	docker run --rm --name trails-completionist -v $(CURDIR)/config:/config toozej/trails-completionist:latest
+	docker run --rm --name trails-completionist --env-file .env toozej/trails-completionist:latest
 
 up: test build ## Run Docker Compose project with build Docker image
 	docker compose -f docker-compose.yml down --remove-orphans
@@ -71,7 +71,7 @@ distroless-build: ## Build Docker image using distroless as final base
 	docker build -f $(CURDIR)/Dockerfile.distroless -t toozej/trails-completionist:distroless . 
 
 distroless-run: ## Run built Docker image using distroless as final base
-	docker run --rm --name trails-completionist -v $(CURDIR)/config:/config toozej/trails-completionist:distroless
+	docker run --rm --name trails-completionist --env-file .env toozej/trails-completionist:distroless
 
 local-update-deps: ## Run `go get -t -u ./...` to update Go module dependencies
 	go get -t -u ./...
@@ -93,11 +93,14 @@ local-cover: ## View coverage report in web browser
 local-build: ## Run `go build` using locally installed golang toolchain
 	CGO_ENABLED=0 go build -o $(CURDIR)/out/ -ldflags="$(LDFLAGS)"
 
-local-run: ## Run locally built binary
-	$(CURDIR)/out/trails-completionist --debug --inputFile trails_input_file_example.txt --checklistFile trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html
-
-local-run-generate: ## Run locally built binary with existing trails checklist files
-	$(CURDIR)/out/trails-completionist --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html
+local-run: ## Run locally built binary with specified stages (ALL or HTML)
+	@if [ "$(stages)" = "ALL" ]; then \
+		$(CURDIR)/out/trails-completionist --debug --inputFile $(CURDIR)/trails_input_file_example.txt --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
+	elif [ "$(stages)" = "HTML" ]; then \
+		$(CURDIR)/out/trails-completionist --debug --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
+	else \
+		echo "Invalid stage specified. Use 'make local-run stages=ALL' or 'make local-run stages=HTML'."; \
+	fi
 
 local-kill: ## Kill any currently running locally built binary
 	-pkill -f '$(CURDIR)/out/trails-completionist'

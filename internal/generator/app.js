@@ -94,9 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const [column, value] of Object.entries(filters)) {
                 const columnHeader = document.querySelector(`th[data-column="${column}"]`);
                 const columnIndex = Array.from(columnHeader.parentNode.children).indexOf(columnHeader);
-                const cellText = row.querySelector(`td:nth-child(${columnIndex + 1})`).textContent.trim();
+                const cell = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+                const cellText = cell.textContent.trim();
                 
-                if (!cellText.toLowerCase().includes(value.toLowerCase())) {
+                // Special handling for 'completed' column
+                if (column === 'completed' && (value.toLowerCase() === 'true' || value.toLowerCase() === 'yes')) {
+                    const checkbox = cell.querySelector('input[type="checkbox"]');
+                    if (!checkbox || !checkbox.checked) {
+                        matchesFilters = false;
+                        break;
+                    }
+                } else if (!cellText.toLowerCase().includes(value.toLowerCase())) {
                     matchesFilters = false;
                     break;
                 }

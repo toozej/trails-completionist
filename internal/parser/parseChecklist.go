@@ -46,6 +46,8 @@ func extractTrailInfoFromChecklist(file *os.File) ([]types.Trail, error) {
 			case strings.Contains(line, "Completed"):
 				currentTrail.Completed = parseTrailCompletedFromChecklist(line)
 				currentTrail.CompletionDate = parseTrailCompletionDateFromChecklist(line)
+			case strings.Contains(line, "http"):
+				currentTrail.URL = parseTrailURLFromChecklist(line)
 			}
 		}
 	}
@@ -123,7 +125,7 @@ func parseTrailParkFromChecklist(input string) string {
 
 func parseTrailCompletedFromChecklist(input string) bool {
 	// Regular expression to parse trail completed
-	re := regexp.MustCompile(`^\s{4}(?i)Completed`)
+	re := regexp.MustCompile(`^\s{4}-\s{1}(?i)Completed`)
 
 	// FindStringSubmatch returns a slice of strings containing the text of the leftmost match
 	match := re.FindStringSubmatch(input)
@@ -169,6 +171,23 @@ func parseTrailCompletionDateFromChecklist(input string) string {
 	trailCompletionDate = parsedDate.Format(layouts[0])
 
 	return trailCompletionDate
+}
+
+func parseTrailURLFromChecklist(input string) string {
+	// Regular expression to parse trail URL
+	re := regexp.MustCompile(`^\s{4}-\s{1}(http.*)$`)
+
+	// FindStringSubmatch returns a slice of strings containing the text of the leftmost match
+	match := re.FindStringSubmatch(input)
+
+	var trailURL string
+	if len(match) == 2 {
+		trailURL = match[1]
+	} else {
+		trailURL = ""
+	}
+
+	return trailURL
 }
 
 func ParseTrailsFromChecklist(filename string) ([]types.Trail, error) {

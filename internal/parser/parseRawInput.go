@@ -51,7 +51,7 @@ func extractTrailInfo(file *os.File) ([]types.Trail, error) {
 					Park:           parseTrailPark(lines[2]),
 					Type:           parseTrailType(lines[1]),
 					Length:         parseTrailLength(lines[1]),
-					URL:            "",
+					URL:            parseTrailURL(""),
 					Completed:      false,
 					CompletionDate: "",
 				}
@@ -129,6 +129,11 @@ func parseTrailPark(input string) string {
 	}
 
 	return trailPark
+}
+
+// TODO: implement parseTrailURL function once I have a better input dataset which includes URL links to trails
+func parseTrailURL(input string) string {
+	return input
 }
 
 func ParseTrailsFromRawInputFile(filename string) ([]types.Trail, error) {
