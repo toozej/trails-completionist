@@ -33,24 +33,27 @@ func rootCmdRun(cmd *cobra.Command, args []string) {
 		fmt.Printf("rootCmdRun: conf Config struct contains: %v\n", conf)
 	}
 
-	// gather raw trails
-	if viper.GetBool("debug") {
-		fmt.Printf("Parsing filename: %s\n", conf.InputFile)
-	}
-	rawTrails, err := parser.ParseTrailsFromRawInputFile(conf.InputFile)
-	if err != nil {
-		log.Fatal("Error parsing trails from raw input file: ", err)
-	}
-	if viper.GetBool("debug") {
-		fmt.Printf("Parsed trails from raw input:\n %v\n", rawTrails)
-	}
+	// if input file is provided...
+	if conf.InputFile != "" {
+		// gather raw trails
+		if viper.GetBool("debug") {
+			fmt.Printf("Parsing filename: %s\n", conf.InputFile)
+		}
+		rawTrails, err := parser.ParseTrailsFromRawInputFile(conf.InputFile)
+		if err != nil {
+			log.Fatal("Error parsing trails from raw input file: ", err)
+		}
+		if viper.GetBool("debug") {
+			fmt.Printf("Parsed trails from raw input:\n %v\n", rawTrails)
+		}
 
-	// generate checklist
-	if viper.GetBool("debug") {
-		fmt.Printf("Parsing filename: %s\n", conf.ChecklistFile)
-	}
-	if err = generator.GenerateChecklist(conf.ChecklistFile, rawTrails); err != nil {
-		log.Fatal("Error generating checklist: ", err)
+		// generate checklist
+		if viper.GetBool("debug") {
+			fmt.Printf("Parsing filename: %s\n", conf.ChecklistFile)
+		}
+		if err = generator.GenerateChecklist(conf.ChecklistFile, rawTrails); err != nil {
+			log.Fatal("Error generating checklist: ", err)
+		}
 	}
 
 	// parse trails from checklist
