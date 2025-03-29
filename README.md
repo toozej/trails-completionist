@@ -33,3 +33,7 @@ A simple Golang application to parse a list of trails, then display that in a se
 
 ## Development
 Operations on the trails-completionist application are driven by `make`. See `make help` for more details.
+
+## changes required to update golang version
+`make update-golang-version`
+
