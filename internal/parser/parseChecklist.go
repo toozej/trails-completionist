@@ -144,7 +144,7 @@ func parseTrailCompletionDateFromChecklist(input string) string {
 	// Parse trail completion date using time.Parse()
 
 	// remove any non-date junk from input
-	d := strings.TrimPrefix(input, "    - Completed: ")
+	d := strings.TrimPrefix(input, "    - Completed ")
 
 	// Define the valid layouts
 	// date format must be MM/DD/YYYY, MM/DD/YY, M/D/YYYY, or M/D/YY

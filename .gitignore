@@ -31,3 +31,9 @@ docs/
 dist/
 
 trails_checklist.md
+tracks/
+
+# XML-formatted OpenStreetMap file from website download
+map.osm
+# parsed OpenStreetMap file in binary format
+map.osm.bin

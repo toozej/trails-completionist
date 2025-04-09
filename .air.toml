@@ -1,6 +1,6 @@
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "make local-build local-kill local-run"
+cmd = "make local-build local-kill local-run stages=ALL"
 
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html"]
