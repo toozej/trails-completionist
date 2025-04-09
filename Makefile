@@ -95,9 +95,10 @@ local-build: ## Run `go build` using locally installed golang toolchain
 
 local-run: ## Run locally built binary with specified stages (ALL or HTML)
 	@if [ "$(stages)" = "ALL" ]; then \
-		$(CURDIR)/out/trails-completionist --debug --inputFile $(CURDIR)/trails_input_file_example.txt --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
+		$(CURDIR)/out/trails-completionist full --trackFiles $(CURDIR)/tracks/ --osmRegionFile $(CURDIR)/map.osm --inputFile $(CURDIR)/trails_input_file_example.txt --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
 	elif [ "$(stages)" = "HTML" ]; then \
-		$(CURDIR)/out/trails-completionist --debug --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
+		$(CURDIR)/out/trails-completionist generate-html --checklistFile $(CURDIR)/trails_checklist.md --htmlFile $(CURDIR)/out/html/trails.html; \
+		$(CURDIR)/out/trails-completionist serve --htmlFile $(CURDIR)/out/html/trails.html; \
 	else \
 		echo "Invalid stage specified. Use 'make local-run stages=ALL' or 'make local-run stages=HTML'."; \
 	fi
@@ -107,6 +108,10 @@ local-kill: ## Kill any currently running locally built binary
 
 local-iterate: ## Run `make local-build local-run` via `air` any time a .go or .tmpl file changes
 	air -c $(CURDIR)/.air.toml
+
+local-download-osm: ## Download OSM data for specified area
+	echo "Downloading OSM data ..."
+	curl -L -o $(CURDIR)/map.osm https://overpass-api.de/api/map?bbox=-123.0496,45.3507,-122.2909,45.6635
 
 local-release-test: ## Build assets and test goreleaser config using locally installed golang toolchain and goreleaser
 	goreleaser check

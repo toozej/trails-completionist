@@ -29,3 +29,4 @@ COPY --from=build /go/trails-completionist/trails-completionist /go/bin/trails-c
 # EXPOSE 8080
 # Run the binary.
 ENTRYPOINT ["/go/bin/trails-completionist"]
+CMD ["full", "--help"]

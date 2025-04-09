@@ -29,3 +29,4 @@ FROM scratch
 COPY --from=build /go/trails-completionist/trails-completionist /go/bin/trails-completionist
 # Run the binary.
 ENTRYPOINT ["/go/bin/trails-completionist"]
+CMD ["full", "--help"]

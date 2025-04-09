@@ -8,6 +8,8 @@ import (
 )
 
 type Config struct {
+	OSMRegionFile string `mapstructure:"osm_region_file"`
+	TrackFiles    string `mapstructure:"track_files"`
 	InputFile     string `mapstructure:"input_file"`
 	ChecklistFile string `mapstructure:"checklist_file"`
 	HTMLFile      string `mapstructure:"html_file"`
@@ -37,4 +39,16 @@ func GetEnvVars() Config {
 	}
 
 	return conf
+}
+
+// ConfigFromViper returns a Config struct populated from Viper (flags/env)
+func ConfigFromViper() Config {
+	return Config{
+		TrackFiles:    viper.GetString("trackFiles"),
+		OSMRegionFile: viper.GetString("osmRegionFile"),
+		InputFile:     viper.GetString("inputFile"),
+		ChecklistFile: viper.GetString("checklistFile"),
+		HTMLFile:      viper.GetString("htmlFile"),
+		Serve:         viper.GetBool("serve"),
+	}
 }
