@@ -5,14 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/toozej/trails-completionist/internal/parser"
-	"github.com/toozej/trails-completionist/pkg/config"
 )
 
 var ParseGPXCmd = &cobra.Command{
 	Use:   "parse-gpx",
 	Short: "Parse trails out of GPX files",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		conf := config.ConfigFromViper()
 		trackFiles := conf.TrackFiles
 		if trackFiles == "" {
 			return fmt.Errorf("trackFiles must be specified via flag or env var")

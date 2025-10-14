@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
+	log "github.com/sirupsen/logrus"
 	"github.com/toozej/trails-completionist/internal/types"
 	"github.com/toozej/trails-completionist/pkg/osm"
 
@@ -91,7 +91,7 @@ func convertTrailResultsToTrails(results []types.TrailResult) ([]types.Trail, er
 				Completed:      true,
 				CompletionDate: result.TravelDate.Format("01/02/2006"),
 			}
-			if viper.GetBool("debug") {
+			if log.GetLevel() == log.DebugLevel {
 				fmt.Printf("Added trail %s from filename %s\n", trail.Name, result.Filename)
 			}
 			trails = append(trails, trail)
@@ -120,7 +120,7 @@ func convertTrailResultsToTrails(results []types.TrailResult) ([]types.Trail, er
 					Completed:      true,
 					CompletionDate: result.TravelDate.Format("01/02/2006"),
 				}
-				if viper.GetBool("debug") {
+				if log.GetLevel() == log.DebugLevel {
 					fmt.Printf("Added trail %s from filename %s\n", trail.Name, result.Filename)
 				}
 				trails = append(trails, trail)

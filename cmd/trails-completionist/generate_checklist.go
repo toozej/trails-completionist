@@ -8,14 +8,12 @@ import (
 	"github.com/toozej/trails-completionist/internal/matcher"
 	"github.com/toozej/trails-completionist/internal/parser"
 	"github.com/toozej/trails-completionist/internal/types"
-	"github.com/toozej/trails-completionist/pkg/config"
 )
 
 var GenerateChecklistCmd = &cobra.Command{
 	Use:   "generate-checklist",
 	Short: "Generate trails checklist from raw input and GPX files",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		conf := config.ConfigFromViper()
 		trackFiles := conf.TrackFiles
 		inputFile := conf.InputFile
 		checklistFile := conf.ChecklistFile

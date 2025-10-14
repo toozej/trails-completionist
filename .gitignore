@@ -27,8 +27,9 @@ vendor/
 # Generated directories
 completions/
 manpages/
-docs/
 dist/
+docs/diagrams/go-diagrams/
+profiles/
 
 trails_checklist.md
 tracks/
@@ -37,3 +38,10 @@ tracks/
 map.osm
 # parsed OpenStreetMap file in binary format
 map.osm.bin
+
+# Temporary files
+prompt.txt
+prompt.md
+TASKS.md
+.kiro/
+.kilocode/

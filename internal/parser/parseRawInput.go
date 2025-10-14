@@ -3,12 +3,11 @@ package parser
 import (
 	"bufio"
 	"bytes"
-	"log"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/spf13/viper"
+	log "github.com/sirupsen/logrus"
 	"github.com/toozej/trails-completionist/internal/types"
 )
 
@@ -18,7 +17,7 @@ func fetchFile(filename string) (*os.File, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if viper.GetBool("debug") {
+	if log.GetLevel() == log.DebugLevel {
 		fileContents, _ := os.ReadFile(filename) // #nosec G304
 		bytesReader := bytes.NewReader(fileContents)
 		bufReader := bufio.NewReader(bytesReader)

@@ -7,8 +7,7 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/spf13/viper"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/toozej/trails-completionist/internal/types"
 )
 
@@ -79,7 +78,7 @@ func GenerateChecklist(filename string, trails []types.Trail) error {
 				return nil
 			}
 
-			if viper.GetBool("debug") {
+			if log.GetLevel() == log.DebugLevel {
 				// Print the file name and content
 				fmt.Printf("File Name: %s\n", path)
 				fmt.Printf("File Content:\n%s\n", fileContent)
