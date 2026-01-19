@@ -231,7 +231,7 @@ homebrew_casks:
       name: homebrew-tap
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     manpages:
-      - "man/trails-completionist.1.gz"
+      - "manpages/trails-completionist.1.gz"
     completions:
       bash: "completions/trails-completionist.bash"
       zsh: "completions/trails-completionist.zsh"
