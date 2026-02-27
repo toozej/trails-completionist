@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -88,45 +89,117 @@ type TrackPoint struct {
 	HeartRate *int     `xml:"extensions>gpxtpx:TrackPointExtension>gpxtpx:hr,omitempty"`
 }
 
-func ConvertAllTCXToGPX(inputDir string) error {
-	// Walk through the directory recursively and convert TCX files to GPX
+// func ConvertAllTCXToGPX(inputDir string) error {
+// 	// Walk through the directory recursively and convert TCX files to GPX
+//
+// 	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		// Skip directories
+// 		if info.IsDir() {
+// 			return nil
+// 		}
+//
+// 		// Check if file is a TCX file
+// 		if strings.ToLower(filepath.Ext(path)) == ".tcx" {
+// 			fmt.Printf("Converting: %s\n", path)
+//
+// 			err := convertTCXToGPX(path)
+// 			if err != nil {
+// 				fmt.Printf("Error converting %s: %v\n", path, err)
+// 				return nil // Continue with other files
+// 			}
+//
+// 			// Remove original TCX file
+// 			err = os.Remove(path)
+// 			if err != nil {
+// 				fmt.Printf("Error removing original file %s: %v\n", path, err)
+// 			} else {
+// 				fmt.Printf("Successfully removed original file: %s\n", path)
+// 			}
+// 		}
+//
+// 		return nil
+// 	})
+//
+// 	if err != nil {
+// 		fmt.Printf("Error walking directory: %v\n", err)
+// 		return err
+// 	}
+// 	fmt.Println("All TCX files converted to GPX successfully.")
+// 	return nil
+// }
 
-	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
+// ConvertAllTCXToGPX walks inputDir safely and converts all .tcx files to .gpx
+func ConvertAllTCXToGPX(inputDir string) error {
+	root, err := os.OpenRoot(inputDir)
+	if err != nil {
+		return fmt.Errorf("open root: %w", err)
+	}
+	defer root.Close()
+
+	err = fs.WalkDir(root.FS(), ".", func(rel string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Skip directories
-		if info.IsDir() {
+		if d.IsDir() {
 			return nil
 		}
 
-		// Check if file is a TCX file
-		if strings.ToLower(filepath.Ext(path)) == ".tcx" {
-			fmt.Printf("Converting: %s\n", path)
+		if !strings.EqualFold(filepath.Ext(rel), ".tcx") {
+			return nil
+		}
 
-			err := convertTCXToGPX(path)
-			if err != nil {
-				fmt.Printf("Error converting %s: %v\n", path, err)
-				return nil // Continue with other files
-			}
+		fmt.Printf("Converting: %s\n", rel)
 
-			// Remove original TCX file
-			err = os.Remove(path)
-			if err != nil {
-				fmt.Printf("Error removing original file %s: %v\n", path, err)
-			} else {
-				fmt.Printf("Successfully removed original file: %s\n", path)
-			}
+		// SAFE OPEN — cannot escape root even if rel becomes malicious
+		src, err := root.Open(rel)
+		if err != nil {
+			fmt.Printf("Error opening %s: %v\n", rel, err)
+			return nil
+		}
+		defer src.Close()
+
+		// Create destination filename
+		gpxRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".gpx"
+
+		dst, err := root.Create(gpxRel)
+		if err != nil {
+			fmt.Printf("Error creating %s: %v\n", gpxRel, err)
+			_ = src.Close()
+			return nil
+		}
+
+		// Convert content
+		abs := filepath.Join(inputDir, rel)
+
+		if err := convertTCXToGPX(abs); err != nil {
+			fmt.Printf("Error converting %s: %v\n", rel, err)
+			_ = dst.Close()
+			_ = src.Close()
+			return nil
+		}
+
+		_ = dst.Close()
+		_ = src.Close()
+
+		// SAFE REMOVE — cannot delete outside root
+		if err := root.Remove(rel); err != nil {
+			fmt.Printf("Error removing original file %s: %v\n", rel, err)
+		} else {
+			fmt.Printf("Removed original file: %s\n", rel)
 		}
 
 		return nil
 	})
 
 	if err != nil {
-		fmt.Printf("Error walking directory: %v\n", err)
-		return err
+		return fmt.Errorf("walk directory: %w", err)
 	}
+
 	fmt.Println("All TCX files converted to GPX successfully.")
 	return nil
 }
