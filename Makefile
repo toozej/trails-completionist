@@ -29,6 +29,11 @@ LDFLAGS = -s -w \
 # Define the repository URL
 REPO_URL := https://github.com/toozej/trails-completionist
 
+# Docker image
+IMAGE_AUTHOR = toozej
+IMAGE_NAME = trails-completionist
+IMAGE_TAG = latest
+
 # Detect the OS and architecture
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
@@ -48,22 +53,23 @@ local-release-verify: local-release local-sign local-verify ## Release and verif
 pre-reqs: pre-commit-install ## Install pre-commit hooks and necessary binaries
 
 vet: ## Run `go vet` in Docker
-	docker build --target vet -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest . 
+	docker build --target vet -f $(CURDIR)/Dockerfile -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG) . 
 
 test: ## Run `go test` in Docker
-	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest .
+	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG) .
 
 build: ## Build Docker image, including running tests
-	docker build -f $(CURDIR)/Dockerfile -t toozej/trails-completionist:latest .
+	docker build -f $(CURDIR)/Dockerfile -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG) .
 
 get-cosign-pub-key: ## Get trails-completionist Cosign public key from GitHub
 	test -f $(CURDIR)/trails-completionist.pub || curl --silent https://raw.githubusercontent.com/toozej/trails-completionist/main/trails-completionist.pub -O
 
 verify: get-cosign-pub-key ## Verify Docker image with Cosign
-	cosign verify --key $(CURDIR)/trails-completionist.pub toozej/trails-completionist:latest
+	cosign verify --key $(CURDIR)/trails-completionist.pub $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 run: ## Run built Docker image
-	docker run --rm --name trails-completionist --env-file .env toozej/trails-completionist:latest
+	-docker kill $(IMAGE_NAME)
+	docker run --rm --name $(IMAGE_NAME) --env-file .env $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 up: test build ## Run Docker Compose project with build Docker image
 	docker compose -f docker-compose.yml down --remove-orphans
@@ -74,10 +80,10 @@ down: ## Stop running Docker Compose project
 	docker compose -f docker-compose.yml down --remove-orphans
 
 distroless-build: ## Build Docker image using distroless as final base
-	docker build -f $(CURDIR)/Dockerfile.distroless -t toozej/trails-completionist:distroless . 
+	docker build -f $(CURDIR)/Dockerfile.distroless -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):distroless . 
 
 distroless-run: ## Run built Docker image using distroless as final base
-	docker run --rm --name trails-completionist --env-file .env toozej/trails-completionist:distroless
+	docker run --rm --name trails-completionist --env-file .env $(IMAGE_AUTHOR)/$(IMAGE_NAME):distroless
 
 install: ## Install trails-completionist from latest GitHub release
 	if command -v go; then \
@@ -96,6 +102,7 @@ local-update-deps: ## Run `go get -t -u ./...` to update Go module dependencies
 	go get -t -u ./...
 
 local-vet: ## Run `go vet` using locally installed golang toolchain
+	go fmt $(CURDIR)/...
 	go vet $(CURDIR)/...
 
 local-vendor: ## Run `go mod tidy & vendor` using locally installed golang toolchain
@@ -291,11 +298,15 @@ benchmark: ## Run benchmarks
 	@echo "Running benchmarks..."
 	go test -bench=. -benchmem $(CURDIR)/internal/trails-completionist/
 
-clean: ## Remove any locally compiled binaries and profiles
-	rm -f $(CURDIR)/out/trails-completionist
-	rm -f $(CURDIR)/trails_checklist.md
-	rm -f $(CURDIR)/out/html/*
-	rm -rf $(CURDIR)/profiles/
+clean: ## Remove any locally compiled binaries, profiles, demo output, and built Docker image
+	@echo "=== Cleaning up compiled binaries, profiles, demo output, and built Docker image ==="
+	@rm -f $(CURDIR)/out/trails-completionist
+	@rm -rf $(CURDIR)/profiles/
+	@rm -rf $(CURDIR)/dist/
+	@rm -rf $(CURDIR)/c.out
+	@rm -rf $(CURDIR)/manpages/
+	@rm -rf $(CURDIR)/completions/
+	-docker image rm $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 help: ## Display help text
 	@grep -E '^[a-zA-Z_-]+ ?:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
