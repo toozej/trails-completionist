@@ -31,6 +31,6 @@ FROM scratch
 # Copy our static executable.
 COPY --from=build /go/trails-completionist/trails-completionist /go/bin/trails-completionist
 # Run the binary.
-USER non-root
+USER nonroot
 ENTRYPOINT ["/go/bin/trails-completionist"]
 CMD ["full", "--help"]
