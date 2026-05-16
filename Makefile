@@ -55,7 +55,7 @@ pre-reqs: pre-commit-install ## Install pre-commit hooks and necessary binaries
 vet: ## Run `go vet` in Docker
 	docker build --target vet -f $(CURDIR)/Dockerfile -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG) . 
 
-test: ## Run `go test` in Docker
+test: ## Run `go test` with race detection in Docker
 	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG) .
 
 build: ## Build Docker image, including running tests
@@ -80,10 +80,10 @@ down: ## Stop running Docker Compose project
 	docker compose -f docker-compose.yml down --remove-orphans
 
 distroless-build: ## Build Docker image using distroless as final base
-	docker build -f $(CURDIR)/Dockerfile.distroless -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):distroless . 
+	docker build -f $(CURDIR)/Dockerfile.distroless -t $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG)-distroless .
 
 distroless-run: ## Run built Docker image using distroless as final base
-	docker run --rm --name trails-completionist --env-file .env $(IMAGE_AUTHOR)/$(IMAGE_NAME):distroless
+	docker run --rm --name trails-completionist -v $(CURDIR)/config:/config $(IMAGE_AUTHOR)/$(IMAGE_NAME):$(IMAGE_TAG)-distroless
 
 install: ## Install trails-completionist from latest GitHub release
 	if command -v go; then \
