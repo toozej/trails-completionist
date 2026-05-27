@@ -1,5 +1,4 @@
 ---
-version: "3"
 services:
   trails-completionist:
     container_name: trails-completionist

@@ -40,7 +40,13 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X github.com/toozej/trails-completionist/pkg/version.Version={{.Version}} -X github.com/toozej/trails-completionist/pkg/version.Commit={{.Commit}} -X github.com/toozej/trails-completionist/pkg/version.Branch={{.Branch}} -X github.com/toozej/trails-completionist/pkg/version.BuiltAt={{.CommitDate}} -X github.com/toozej/trails-completionist/pkg/version.Builder=goreleaser
+      - >-
+        -s -w
+        -X github.com/toozej/trails-completionist/pkg/version.Version={{.Version}}
+        -X github.com/toozej/trails-completionist/pkg/version.Commit={{.Commit}}
+        -X github.com/toozej/trails-completionist/pkg/version.Branch={{.Branch}}
+        -X github.com/toozej/trails-completionist/pkg/version.BuiltAt={{.CommitDate}}
+        -X github.com/toozej/trails-completionist/pkg/version.Builder=goreleaser
     main: ./
     binary: trails-completionist
 
@@ -161,7 +167,6 @@ dockers_v2:
       "index,manifest:org.opencontainers.image.version": "{{.Version}}"
     extra_files:
       - scripts/goreleaser_entrypoint.sh
-
 
 archives:
   - name_template: >-
