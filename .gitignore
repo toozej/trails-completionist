@@ -1,6 +1,4 @@
 # Cosign
-trails-completionist.key
-cosign.key
 *.sig
 *.bundle
 

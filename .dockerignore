@@ -18,4 +18,4 @@ Makefile
 Dockerfile*
 docker-compose.yml
 trails-completionist
-trails-completionist.key
+
