@@ -1,5 +1,11 @@
 # trails-completionist
 
+
+MIGRATED TO [monogo Go monorepo](https://github.com/toozej/monogo)
+
+
+
+
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/toozej/trails-completionist)
 [![Go Report Card](https://goreportcard.com/badge/github.com/toozej/trails-completionist)](https://goreportcard.com/report/github.com/toozej/trails-completionist)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/toozej/trails-completionist/cicd.yaml)
